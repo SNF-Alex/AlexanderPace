@@ -1,0 +1,107 @@
+/* ============================================
+   COLOR SCHEME OPTIONS FOR PORTFOLIO
+   ============================================
+   Instructions: Choose ONE scheme below and copy its CSS variables
+   to replace the :root section in main.css
+   ============================================ */
+
+/* ============================================
+   OPTION 1: EMERALD GREEN (Professional & Fresh)
+   ============================================ */
+.emerald-scheme {
+    --primary-color: #10b981;        /* Emerald Green */
+    --primary-dark: #059669;         /* Dark Emerald */
+    --primary-light: #34d399;        /* Light Emerald */
+    --accent-color: #14b8a6;         /* Teal accent */
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-dark: #111827;
+}
+
+/* ============================================
+   OPTION 2: DEEP PURPLE (Creative & Bold)
+   ============================================ */
+.purple-scheme {
+    --primary-color: #9333ea;        /* Purple */
+    --primary-dark: #7e22ce;         /* Dark Purple */
+    --primary-light: #a855f7;        /* Light Purple */
+    --accent-color: #ec4899;         /* Pink accent */
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-dark: #111827;
+}
+
+/* ============================================
+   OPTION 3: CORAL/ORANGE (Energetic & Warm)
+   ============================================ */
+.coral-scheme {
+    --primary-color: #f97316;        /* Orange */
+    --primary-dark: #ea580c;         /* Dark Orange */
+    --primary-light: #fb923c;        /* Light Orange */
+    --accent-color: #ef4444;         /* Red accent */
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-dark: #111827;
+}
+
+/* ============================================
+   OPTION 4: TEAL/CYAN (Modern & Professional)
+   ============================================ */
+.teal-scheme {
+    --primary-color: #14b8a6;        /* Teal */
+    --primary-dark: #0d9488;         /* Dark Teal */
+    --primary-light: #2dd4bf;        /* Light Teal */
+    --accent-color: #06b6d4;         /* Cyan accent */
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-dark: #111827;
+}
+
+/* ============================================
+   OPTION 5: CRIMSON RED (Bold & Confident)
+   ============================================ */
+.crimson-scheme {
+    --primary-color: #dc2626;        /* Red */
+    --primary-dark: #b91c1c;         /* Dark Red */
+    --primary-light: #ef4444;        /* Light Red */
+    --accent-color: #f59e0b;         /* Amber accent */
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-dark: #111827;
+}
+
+/* ============================================
+   OPTION 6: SLATE/CHARCOAL (Elegant & Minimal)
+   ============================================ */
+.slate-scheme {
+    --primary-color: #475569;        /* Slate */
+    --primary-dark: #334155;         /* Dark Slate */
+    --primary-light: #64748b;        /* Light Slate */
+    --accent-color: #f59e0b;         /* Amber accent for contrast */
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-dark: #111827;
+}
+
+/* ============================================
+   HOW TO APPLY YOUR CHOSEN SCHEME:
+   ============================================
+   1. Pick your favorite option above
+   2. Copy the CSS variables (the --primary-color lines)
+   3. Open main.css
+   4. Find the :root { } section at the top
+   5. Replace the existing variables with your chosen scheme
+   6. Save and refresh your browser!
+   ============================================ */

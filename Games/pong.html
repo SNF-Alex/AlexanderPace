@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pong – HTML Canvas</title>
+  <style>
+    :root {
+      --bg: #0b0f1a;
+      --fg: #e2e8f0;
+      --accent: #22d3ee;
+      --muted: #64748b;
+      --line: #1f2937;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: radial-gradient(1200px 800px at 20% 20%, #0f172a 0%, var(--bg) 60%);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .wrap {
+      position: relative;
+      height: 100%;
+      display: grid;
+      place-items: center;
+    }
+    canvas {
+      width: min(92vw, 1200px);
+      aspect-ratio: 16 / 10;
+      max-height: 88vh;
+      border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255,255,255,0.04);
+      background: linear-gradient(180deg, #0a0f1a 0%, #0b1220 100%);
+    }
+    .hud {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      text-align: center;
+      padding: 1rem;
+    }
+    .title { font-weight: 800; letter-spacing: 0.5px; font-size: clamp(20px, 2.4vw, 28px); }
+    .muted { color: var(--muted); font-size: clamp(12px, 1.4vw, 14px); }
+    .keys {
+      display: inline-grid; grid-auto-flow: column; gap: 0.75rem; margin-top: 0.5rem;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+      padding: 0.5rem 0.75rem; border-radius: 999px; backdrop-filter: blur(8px);
+    }
+    kbd { background: #0b1220; border: 1px solid #233048; border-bottom-width: 3px; padding: 4px 8px; border-radius: 8px; font-weight: 700; }
+    .topbar {
+      position: fixed; left: 50%; transform: translateX(-50%);
+      top: 10px; display: flex; gap: 10px; align-items: center;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      padding: 6px 10px; border-radius: 12px; font-size: 12px; color: var(--fg);
+      backdrop-filter: blur(8px);
+    }
+    .btn { pointer-events: auto; cursor: pointer; border: 1px solid var(--line); background: #0a1220; color: var(--fg);
+      padding: 6px 10px; border-radius: 10px; font-weight: 700; }
+    .btn:hover { border-color: #2b3a56; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <canvas id="game" width="960" height="600" aria-label="Pong game"></canvas>
+    <div class="hud" id="hud"></div>
+  </div>
+  <div class="topbar">
+    <button class="btn" id="btnStart">Start (Space)</button>
+    <button class="btn" id="btnPause">Pause (P)</button>
+    <button class="btn" id="btnReset">Reset (R)</button>
+    <span style="opacity:.7">• Two‑player: <strong>W/S</strong> vs <strong>↑/↓</strong></span>
+  </div>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById('game');
+      const hud = document.getElementById('hud');
+      const ctx = canvas.getContext('2d');
+
+      // Hi‑DPI scaling
+      function fitCanvasToCSS() {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = Math.round(rect.width * dpr);
+        canvas.height = Math.round(rect.height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // scale drawing ops back to CSS pixels
+      }
+      new ResizeObserver(fitCanvasToCSS).observe(canvas);
+      fitCanvasToCSS();
+
+      const W = () => canvas.clientWidth;
+      const H = () => canvas.clientHeight;
+
+      // Game state
+      const state = {
+        running: false,
+        paused: false,
+        scoreLeft: 0,
+        scoreRight: 0,
+        toWin: 10,
+        lastTime: 0,
+        ball: { x: 0, y: 0, r: 8, vx: 0, vy: 0, speed: 460 },
+        padL: { x: 24, y: 0, w: 14, h: 90, vy: 0 },
+        padR: { x: 0, y: 0, w: 14, h: 90, vy: 0 },
+        keys: { w: false, s: false, ArrowUp: false, ArrowDown: false }
+      };
+
+      function resetPositions(dir = (Math.random() < 0.5 ? -1 : 1)) {
+        state.ball.x = W() / 2; state.ball.y = H() / 2; state.ball.r = Math.max(6, Math.min(10, Math.round(H()/60)));
+        state.ball.vx = dir * state.ball.speed * (0.75 + Math.random() * 0.25);
+        state.ball.vy = (Math.random() * 2 - 1) * state.ball.speed * 0.5;
+        state.padL.h = Math.max(70, Math.min(140, Math.round(H()/6.5)));
+        state.padR.h = state.padL.h;
+        state.padL.y = H() / 2 - state.padL.h / 2;
+        state.padR.y = H() / 2 - state.padR.h / 2;
+        state.padR.x = W() - state.padR.w - 24;
+      }
+
+      function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+      function drawCourt() {
+        // background glow grid
+        const g = ctx.createLinearGradient(0, 0, 0, H());
+        g.addColorStop(0, '#0d1322');
+        g.addColorStop(1, '#0a0f1a');
+        ctx.fillStyle = g; ctx.fillRect(0, 0, W(), H());
+
+        // center line
+        ctx.setLineDash([10, 10]);
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(W()/2, 12);
+        ctx.lineTo(W()/2, H()-12);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // score
+        ctx.font = `bold ${Math.max(24, Math.round(W()/24))}px system-ui, -apple-system, Segoe UI, Roboto, Inter`;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.fillText(`${state.scoreLeft}  :  ${state.scoreRight}`, W()/2, 48);
+      }
+
+      function drawPaddle(p) {
+        ctx.fillStyle = '#e2e8f0';
+        const r = 8; // rounded corners
+        const x = p.x, y = p.y, w = p.w, h = p.h;
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      function drawBall() {
+        ctx.fillStyle = '#22d3ee';
+        ctx.beginPath();
+        ctx.arc(state.ball.x, state.ball.y, state.ball.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function update(dt) {
+        const padSpeed = Math.max(280, Math.min(720, H()/1.4));
+        // input -> paddles
+        state.padL.vy = (state.keys.w ? -1 : 0) + (state.keys.s ? 1 : 0);
+        state.padR.vy = (state.keys.ArrowUp ? -1 : 0) + (state.keys.ArrowDown ? 1 : 0);
+        state.padL.y = clamp(state.padL.y + state.padL.vy * padSpeed * dt, 8, H() - state.padL.h - 8);
+        state.padR.y = clamp(state.padR.y + state.padR.vy * padSpeed * dt, 8, H() - state.padR.h - 8);
+
+        // ball movement
+        state.ball.x += state.ball.vx * dt;
+        state.ball.y += state.ball.vy * dt;
+
+        // top/bottom collisions
+        if (state.ball.y - state.ball.r < 8 && state.ball.vy < 0) { state.ball.y = 8 + state.ball.r; state.ball.vy *= -1; }
+        if (state.ball.y + state.ball.r > H() - 8 && state.ball.vy > 0) { state.ball.y = H() - 8 - state.ball.r; state.ball.vy *= -1; }
+
+        // paddle collisions
+        function collide(p) {
+          if (state.ball.x + state.ball.r < p.x || state.ball.x - state.ball.r > p.x + p.w ||
+              state.ball.y + state.ball.r < p.y || state.ball.y - state.ball.r > p.y + p.h) return false;
+          // reflect horizontally and add some spin based on contact point
+          const rel = ((state.ball.y - (p.y + p.h/2)) / (p.h/2)); // -1..1
+          state.ball.vx *= -1;
+          state.ball.vx *= 1.04; // slight accel each hit
+          state.ball.vy = clamp(state.ball.vy + rel * 220, -800, 800);
+          // nudge ball out of paddle to prevent sticking
+          if (p === state.padL) state.ball.x = p.x + p.w + state.ball.r + 0.5;
+          if (p === state.padR) state.ball.x = p.x - state.ball.r - 0.5;
+          return true;
+        }
+        collide(state.padL);
+        collide(state.padR);
+
+        // scoring
+        if (state.ball.x < -40) { state.scoreRight++; onScore(1); }
+        if (state.ball.x > W() + 40) { state.scoreLeft++; onScore(-1); }
+      }
+
+      function onScore(direction) {
+        if (state.scoreLeft >= state.toWin || state.scoreRight >= state.toWin) {
+          state.running = false; state.paused = false;
+          showMessage(`${state.scoreLeft > state.scoreRight ? 'Left' : 'Right'} player wins!`, true);
+        } else {
+          resetPositions(direction);
+          showMessage('Point scored! Press Space to serve.');
+          state.paused = true;
+        }
+      }
+
+      function render() {
+        drawCourt();
+        drawPaddle(state.padL);
+        drawPaddle(state.padR);
+        drawBall();
+      }
+
+      function loop(t) {
+        if (!state.running) return;
+        const now = t / 1000;
+        const dt = Math.min(1/30, now - (state.lastTime || now));
+        state.lastTime = now;
+        if (!state.paused) update(dt);
+        render();
+        requestAnimationFrame(loop);
+      }
+
+      function showMessage(text, big = false) {
+        hud.innerHTML = `
+          <div style="pointer-events:auto">
+            <div class="title" style="${big ? 'font-size:clamp(28px,4vw,44px); color:var(--accent);' : ''}">${text}</div>
+            <div class="muted" style="margin-top:8px">Controls: <span class="keys"><kbd>W</kbd><kbd>S</kbd></span> vs <span class="keys"><kbd>↑</kbd><kbd>↓</kbd></span> • <span class="keys"><kbd>Space</kbd></span> serve • <span class="keys"><kbd>P</kbd></span> pause • <span class="keys"><kbd>R</kbd></span> reset</div>
+          </div>`;
+      }
+
+      function hideMessage() { hud.innerHTML = ''; }
+
+      function startGame() {
+        state.scoreLeft = 0; state.scoreRight = 0;
+        resetPositions();
+        state.running = true; state.paused = true; // start paused to serve
+        state.lastTime = 0;
+        showMessage('Press Space to serve!');
+        requestAnimationFrame(loop);
+      }
+
+      function resetGame() { startGame(); }
+
+      // Input
+      window.addEventListener('keydown', (e) => {
+        if (e.repeat) return;
+        if (e.key in state.keys) { state.keys[e.key] = true; e.preventDefault(); }
+        if (e.code === 'Space') {
+          if (!state.running) { startGame(); }
+          else { state.paused = false; hideMessage(); }
+          e.preventDefault();
+        }
+        if (e.key.toLowerCase() === 'p') {
+          if (state.running) {
+            state.paused = !state.paused;
+            state.paused ? showMessage('Paused — press Space to resume') : hideMessage();
+          }
+          e.preventDefault();
+        }
+        if (e.key.toLowerCase() === 'r') { resetGame(); e.preventDefault(); }
+      });
+      window.addEventListener('keyup', (e) => { if (e.key in state.keys) { state.keys[e.key] = false; e.preventDefault(); } });
+
+      // Touch controls (mobile): left half controls left paddle, right half controls right paddle
+      function setupTouch() {
+        const active = new Map();
+        function handleTouch(clientX, clientY, type, id) {
+          const rect = canvas.getBoundingClientRect();
+          const x = clientX - rect.left; const y = clientY - rect.top;
+          const leftSide = x < rect.width / 2;
+          const pad = leftSide ? state.padL : state.padR;
+          // move paddle center toward touch Y
+          const dir = y < (pad.y + pad.h/2) ? -1 : 1;
+          if (type === 'end') { pad.vy = 0; return; }
+          pad.vy = dir; // continuous move while finger down
+        }
+        canvas.addEventListener('touchstart', (e) => {
+          for (const t of e.changedTouches) { active.set(t.identifier, t); handleTouch(t.clientX, t.clientY, 'start', t.identifier); }
+          e.preventDefault();
+        }, { passive: false });
+        canvas.addEventListener('touchmove', (e) => {
+          for (const t of e.changedTouches) { handleTouch(t.clientX, t.clientY, 'move', t.identifier); }
+          e.preventDefault();
+        }, { passive: false });
+        canvas.addEventListener('touchend', (e) => {
+          for (const t of e.changedTouches) { handleTouch(t.clientX, t.clientY, 'end', t.identifier); active.delete(t.identifier); }
+          e.preventDefault();
+        });
+      }
+      setupTouch();
+
+      // Buttons
+      document.getElementById('btnStart').addEventListener('click', () => { if (!state.running) startGame(); else { state.paused = false; hideMessage(); } });
+      document.getElementById('btnPause').addEventListener('click', () => { if (state.running) { state.paused = !state.paused; state.paused ? showMessage('Paused — press Space to resume') : hideMessage(); } });
+      document.getElementById('btnReset').addEventListener('click', () => resetGame());
+
+      // Initial screen
+      showMessage('PONG — Press Space or Start');
+      render();
+    })();
+  </script>
+</body>
+</html>

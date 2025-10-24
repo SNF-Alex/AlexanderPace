@@ -1,0 +1,737 @@
+<!-- filepath: f:\Game\pong\clicker.html -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Epic Clicker: Coinrise</title>
+<style>
+/* Core layout and theme */
+:root{
+  --bg:#0f1226;
+  --panel:#121426;
+  --accent:#6be6c1;
+  --accent-2:#7cc7ff;
+  --muted:#9aa3c7;
+  --glass: rgba(255,255,255,0.03);
+  --glass-2: rgba(255,255,255,0.02);
+  --success:#6be6c1;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial;color:#dfe7ff;background:linear-gradient(180deg,var(--bg),#070816);}
+.app{max-width:1200px;margin:20px auto;padding:24px;}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.title{display:flex;align-items:center;gap:14px}
+.brand{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;box-shadow:0 6px 30px rgba(0,0,0,0.6),inset 0 -6px 20px rgba(255,255,255,0.06);font-weight:700;color:#06273b}
+.huge{font-size:20px;color:#f6fbff;font-weight:700}
+.sub{color:var(--muted);font-size:13px}
+.top-controls{display:flex;gap:10px;align-items:center}
+.btn{background:var(--glass);border:1px solid rgba(255,255,255,0.03);color:#e8efff;padding:8px 12px;border-radius:10px;cursor:pointer;transition:all .12s;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,0.6)}
+.btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#04202a;border:none}
+/* NEW: disabled state */
+.btn[disabled]{opacity:.5;filter:grayscale(.2);pointer-events:none}
+.layout{display:grid;grid-template-columns:420px 1fr 320px;gap:18px}
+.column{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.03)}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px}
+.click-area{width:320px;height:320px;border-radius:20px;background:linear-gradient(135deg,#071428 0%,#082036 100%);display:flex;align-items:center;justify-content:center;position:relative;box-shadow:inset 0 -8px 40px rgba(0,0,0,0.6),0 8px 30px rgba(0,0,0,0.6)}
+.coin{width:180px;height:180px;border-radius:50%;background:radial-gradient(circle at 30% 20%,#fff9d6, #ffd54a 20%, #f59e0b 40%, #db7b00 60%, #b35b00 100%);display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:800;color:#3a2610;text-shadow:0 2px 0 rgba(255,255,255,0.25);cursor:pointer;user-select:none;box-shadow:0 8px 30px rgba(0,0,0,0.6),0 0 40px rgba(255,200,80,0.08)}
+.coin:active{transform:scale(.98)}
+.stats{display:flex;gap:12px;margin-top:18px}
+.stat{background:var(--glass-2);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);min-width:120px;text-align:center}
+.stat .label{font-size:12px;color:var(--muted)}
+.stat .value{font-size:18px;font-weight:700}
+.shop{display:flex;flex-direction:column;gap:10px}
+.item{display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.02)}
+.item .left{flex:1}
+.item .right{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.item .title{font-weight:700}
+.small{font-size:12px;color:var(--muted)}
+.price{background:rgba(0,0,0,0.25);padding:6px 8px;border-radius:8px;color:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.controls{display:flex;gap:8px}
+.achievements{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.ach{padding:8px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;gap:8px}
+.ach.locked{opacity:0.45}
+.pulse{animation:pulse 1.2s infinite}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
+.footer{display:flex;gap:12px;align-items:center;margin-top:16px}
+.progress{height:8px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden}
+.progress > i{display:block;height:100%;background:linear-gradient(90deg,#ffd54a,#ffea8a);width:30%}
+.small-muted{font-size:12px;color:var(--muted)}
+.info{padding:10px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.015),transparent);border:1px solid rgba(255,255,255,0.02)}
+.canvas-layer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.controls-row{display:flex;gap:8px;flex-wrap:wrap}
+.upgrade-level{font-weight:700;color:#cfeef0}
+.hotkey{font-size:11px;background:rgba(255,255,255,0.03);padding:4px 6px;border-radius:6px}
+/* responsive */
+@media (max-width:1100px){.layout{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="title">
+      <div class="brand">CR</div>
+      <div>
+        <div class="huge">Coinrise — Epic Clicker</div>
+        <div class="sub">Click to collect coins, buy upgrades, automate and ascend!</div>
+      </div>
+    </div>
+    <div class="top-controls">
+      <div class="small-muted">Save: <span id="lastSave">never</span></div>
+      <button class="btn" id="exportBtn">Export</button>
+      <button class="btn" id="importBtn">Import</button>
+      <!-- NEW: theme switcher -->
+      <button class="btn" id="themeBtn">Theme</button>
+      <button class="btn" id="resetBtn">Reset</button>
+      <button class="btn primary" id="prestigeBtn">Ascend</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="column">
+      <div class="info">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><strong>Profile</strong></div>
+          <div class="small-muted">Level <span id="playerLevel">1</span></div>
+        </div>
+        <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+          <div class="small-muted">Coins</div>
+          <div style="font-weight:800;font-size:18px"> <span id="coins">0</span> <span class="small-muted">c</span></div>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+          <div class="progress" style="flex:1"><i id="xpBar"></i></div>
+          <div class="small-muted">XP</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <strong>Upgrades</strong>
+        <div class="shop" id="shop"></div>
+      </div>
+
+      <div style="margin-top:12px">
+        <strong>Automators</strong>
+        <div id="autos" class="shop"></div>
+      </div>
+
+    </div>
+
+    <div class="column center">
+      <div style="width:100%;display:flex;justify-content:space-between;align-items:center">
+        <div style="text-align:left">
+          <div class="small-muted">Coins per click</div>
+          <div style="font-size:28px;font-weight:800" id="perClick">1</div>
+        </div>
+        <div style="text-align:right">
+          <div class="small-muted">Coins per second</div>
+          <div style="font-size:20px;font-weight:700" id="cps">0</div>
+        </div>
+      </div>
+
+      <div style="height:16px"></div>
+
+      <div class="click-area" id="clickArea">
+        <canvas class="canvas-layer" id="particles"></canvas>
+        <div class="coin" id="coin">+<span id="lastGain">0</span></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="label">Total Coins</div>
+          <div class="value" id="totalCoins">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Prestige Points</div>
+          <div class="value" id="prestigePoints">0</div>
+        </div>
+      </div>
+
+
+      <div class="footer">
+        <div style="flex:1">
+          <div class="small-muted">Achievements</div>
+          <div class="achievements" id="achievements"></div>
+        </div>
+        <div style="width:260px">
+          <div class="small-muted">Shop Boost</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn" id="doubleClick">Double Click Power (cost)</button>
+            <button class="btn" id="halfcost">Half Costs</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="column">
+      <!-- NEW: Prestige Shop section -->
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Prestige Shop</strong></div>
+        <div class="small-muted">Points: <span id="ppDisplay">0</span></div>
+      </div>
+      <div class="small-muted" style="margin-top:6px">Next Ascend requires: <span id="nextAscendCost">0</span> total coins</div>
+      <div id="prestigeShop" class="shop" style="margin-top:8px"></div>
+
+      <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+        <div><strong>Log</strong></div>
+        <div class="small-muted">Activity</div>
+      </div>
+
+      <div id="log" style="height:420px;overflow:auto;margin-top:12px;border-radius:8px;padding:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.02)"></div>
+
+      <div style="margin-top:12px;">
+        <strong>Quick Stats</strong>
+        <div style="margin-top:8px">
+          <div class="small-muted">Session Time: <span id="sessionTime">0s</span></div>
+          <div class="small-muted">Clicks: <span id="clickCount">0</span></div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <strong>Settings</strong>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-direction:column">
+          <label class="small-muted"><input type="checkbox" id="soundToggle" checked> Sound</label>
+          <label class="small-muted"><input type="checkbox" id="particlesToggle" checked> Particles</label>
+          <label class="small-muted"><input type="checkbox" id="autosToggle" checked> Automators Active</label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Epic Clicker core game logic
+// Data model
+const Game = {
+  coins: 0,
+  totalCoins: 0,
+  perClick: 1,
+  cps: 0,
+  cpsMultiplier: 1, // NEW: cps multiplier from upgrades
+  clickPowerMultiplier: 1,
+  upgrades: {},
+  autos: {},
+  achievements: {},
+  prestigePoints: 0,
+  prestigePerks: {}, // NEW: spent perks
+  ascensions: 0, // NEW: number of ascends performed
+  themeIndex: 0, // NEW: saved theme index
+  xp: 0,
+  level: 1,
+  startedAt: Date.now(),
+  lastTick: Date.now(),
+  clicks: 0
+};
+
+// Base definitions
+const ShopItems = [
+  {id:'click1',name:'Sharp Finger',desc:'+1 flat per click',baseCost:10,type:'click',value:1},
+  {id:'click2',name:'Golden Glove',desc:'+5 flat per click',baseCost:100,type:'click',value:5},
+  {id:'mult1',name:'Lucky Charm',desc:'x1.2 click multiplier',baseCost:250,type:'mult',value:1.2},
+  {id:'mult2',name:'Prestige Ring',desc:'x1.5 click multiplier',baseCost:1500,type:'mult',value:1.5},
+  {id:'xp1',name:'Motivational Poster',desc:'+10 XP on purchase',baseCost:50,type:'xp',value:10},
+  // NEW balanced & gated items
+  {id:'click3',name:'Titanium Tap',desc:'+20 per click',baseCost:2500,type:'click',value:20,requiresLevel:3},
+  {id:'cpsm1',name:'Oil Booster',desc:'x1.2 automators',baseCost:5000,type:'cpsmult',value:1.2,requiresLevel:4},
+  {id:'mult3',name:'Fortune Token',desc:'x1.8 click multiplier',baseCost:8000,type:'mult',value:1.8,requiresLevel:5},
+  {id:'click4',name:'Dragon Claw',desc:'+100 per click',baseCost:20000,type:'click',value:100,requiresLevel:6},
+  {id:'cpsm2',name:'Quantum Server',desc:'x1.6 automators',baseCost:40000,type:'cpsmult',value:1.6,requiresLevel:7},
+  {id:'mult4',name:'Mythic Relic',desc:'x2.2 click multiplier',baseCost:60000,type:'mult',value:2.2,requiresLevel:8}
+];
+
+const Automators = [
+  {id:'auto1',name:'Squirrel Miner',desc:'+1 cps',baseCost:50,value:1},
+  {id:'auto2',name:'Mining Rig',desc:'+10 cps',baseCost:800,value:10},
+  {id:'bank',name:'Bank Teller',desc:'+50 cps',baseCost:10000,value:50}
+];
+
+const Achievements = [
+  {id:'firstClick',name:'First Click',desc:'Click once',checker: s=>s.clicks>=1},
+  {id:'century',name:'Century',desc:'Collect 100 coins total',checker: s=>s.totalCoins>=100},
+  {id:'click1000',name:'Click Marathon',desc:'Click 1000 times',checker: s=>s.clicks>=1000}
+];
+
+// NEW: Prestige Shop definitions (each level costs 1 PP unless noted)
+const PrestigeShop = [
+  {id:'p_click_mult',name:'Sharper Instincts',desc:'+10% click power',cost:1,max:10},
+  {id:'p_cps_mult',name:'Industrial Synergy',desc:'+10% automator power',cost:1,max:10},
+  {id:'p_shop_discount',name:'Wholesale License',desc:'-5% shop prices',cost:1,max:8},
+  {id:'p_offline_eff',name:'Time Manager',desc:'+10% offline earnings',cost:1,max:10},
+  {id:'p_start_click',name:'Muscle Memory',desc:'+2 base per click (start)',cost:1,max:10},
+  {id:'p_auto_speed',name:'Overclockers',desc:'+10% automator speed',cost:1,max:10},
+  {id:'p_crit',name:'Critical Focus',desc:'+2% crit chance',cost:1,max:10},
+  {id:'p_golden',name:'Golden Luck',desc:'+1% golden click chance',cost:1,max:5}
+];
+
+// Utility functions
+function fmt(n){
+  if(n>=1e12) return (n/1e12).toFixed(2)+'T';
+  if(n>=1e9) return (n/1e9).toFixed(2)+'B';
+  if(n>=1e6) return (n/1e6).toFixed(2)+'M';
+  if(n>=1e3) return (n/1e3).toFixed(2)+'k';
+  return Math.floor(n).toString();
+}
+const el = id=>document.getElementById(id);
+// NEW: derived multipliers and helpers
+const getPerk = id => (Game.prestigePerks && Game.prestigePerks[id])||0;
+function nextAscendCost(){ return Math.floor(15000 * Math.pow(1.8, Game.ascensions||0)); }
+function getShopCostMultiplier(){ return Math.max(0.4, 1 - 0.05*getPerk('p_shop_discount')); }
+function getLevelClickMult(){ return 1 + 0.01 * (Game.level-1); }
+function getLevelCPSMult(){ return 1 + 0.005 * (Game.level-1); }
+function getClickMult(){ return Game.clickPowerMultiplier * (1 + 0.10*getPerk('p_click_mult')) * getLevelClickMult(); }
+function getCpsPowerMult(){ return Game.cpsMultiplier * (1 + 0.10*getPerk('p_cps_mult')) * getLevelCPSMult(); }
+function getAutoSpeedMult(){ return 1 + 0.10*getPerk('p_auto_speed'); }
+function getOfflineEfficiency(){ return Math.min(1, 0.30 + 0.10*getPerk('p_offline_eff')); }
+function getCritChance(){ return Math.min(0.5, 0.02 * getPerk('p_crit')); }
+function getGoldenChance(){ return Math.min(0.15, 0.01 * getPerk('p_golden')); }
+function getBasePerClick(){ return Game.perClick + 2*getPerk('p_start_click'); }
+function getRealUpgradeCost(u){ return Math.ceil(u.cost * getShopCostMultiplier()); }
+
+// DOM refs
+const coinsEl = el('coins');
+const totalEl = el('totalCoins');
+const perClickEl = el('perClick');
+const cpsEl = el('cps');
+const shopEl = el('shop');
+const autosEl = el('autos');
+const logEl = el('log');
+const achievementsEl = el('achievements');
+const prestigeEl = el('prestigePoints');
+const ppDisplayEl = el('ppDisplay');
+const nextAscendCostEl = el('nextAscendCost');
+const xpBar = el('xpBar');
+const lastSaveEl = el('lastSave');
+const clickArea = el('clickArea');
+const coinBtn = el('coin');
+const lastGain = el('lastGain');
+const sessionTimeEl = el('sessionTime');
+const clickCountEl = el('clickCount');
+const playerLevelEl = el('playerLevel');
+const prestigeShopEl = el('prestigeShop');
+
+// Particle canvas
+const particlesCanvas = el('particles');
+let pctx, particles = [];
+function resizeCanvas(){
+  particlesCanvas.width = clickArea.clientWidth;
+  particlesCanvas.height = clickArea.clientHeight;
+  pctx = particlesCanvas.getContext('2d');
+}
+window.addEventListener('resize', resizeCanvas);
+
+// Themes (10 presets)
+const Themes = [
+  {name:'Aqua Night',vars:{'--bg':'#0f1226','--panel':'#121426','--accent':'#6be6c1','--accent-2':'#7cc7ff','--muted':'#9aa3c7'}},
+  {name:'Crimson Dusk',vars:{'--bg':'#1b0b0f','--panel':'#210f14','--accent':'#ff7a7a','--accent-2':'#ffb199','--muted':'#caa1a7'}},
+  {name:'Emerald Glow',vars:{'--bg':'#0a1c12','--panel':'#0f2318','--accent':'#5ff597','--accent-2':'#45d06c','--muted':'#9adbb3'}},
+  {name:'Royal Violet',vars:{'--bg':'#160a2a','--panel':'#1c1034','--accent':'#8e7cff','--accent-2':'#c29bff','--muted':'#b6a9da'}},
+  {name:'Amber Forge',vars:{'--bg':'#1e1406','--panel':'#2b1b08','--accent':'#ffb74a','--accent-2':'#ffd27a','--muted':'#c8b291'}},
+  {name:'Neon Mint',vars:{'--bg':'#041916','--panel':'#07211d','--accent':'#54ffd6','--accent-2':'#7affe6','--muted':'#9bd2c9'}},
+  {name:'Deep Blue',vars:{'--bg':'#061224','--panel':'#0a1a30','--accent':'#44a1ff','--accent-2':'#7bc4ff','--muted':'#9fb9da'}},
+  {name:'Magenta Flux',vars:{'--bg':'#1f0022','--panel':'#2a0230','--accent':'#ff5ed1','--accent-2':'#ff9be6','--muted':'#d3a9c9'}},
+  {name:'Solar Lime',vars:{'--bg':'#0d1706','--panel':'#12200a','--accent':'#b8ff47','--accent-2':'#e1ff75','--muted':'#c2d39a'}},
+  {name:'Steel Gray',vars:{'--bg':'#0b0e13','--panel':'#10151c','--accent':'#8aa0b2','--accent-2':'#b6c5d1','--muted':'#8f9aaa'}}
+];
+function applyThemeByIndex(i){
+  const t = Themes[i % Themes.length];
+  Game.themeIndex = i % Themes.length;
+  const root = document.documentElement;
+  Object.entries(t.vars).forEach(([k,v])=>root.style.setProperty(k,v));
+  localStorage.setItem('coinrise_theme_idx', Game.themeIndex);
+  log('Theme applied: '+t.name);
+}
+el('themeBtn').addEventListener('click', ()=>{
+  const next = (()=>{ let idx; do{ idx = Math.floor(Math.random()*Themes.length);}while(idx===Game.themeIndex); return idx; })();
+  applyThemeByIndex(next);
+});
+
+// Initialize shop and autos in Game state
+ShopItems.forEach(it=>Game.upgrades[it.id]={...it,level:0,cost:it.baseCost});
+Automators.forEach(a=>Game.autos[a.id]={...a,qty:0,cost:a.baseCost});
+Achievements.forEach(a=>Game.achievements[a.id]={...a,unlocked:false});
+
+// UI generation
+function renderShop(){
+  shopEl.innerHTML='';
+  Object.values(Game.upgrades).forEach(u=>{
+    const costToPay = getRealUpgradeCost(u);
+    const canBuy = Game.coins >= costToPay && (!u.requiresLevel || Game.level >= u.requiresLevel);
+    const gated = u.requiresLevel && Game.level < u.requiresLevel;
+    const div = document.createElement('div');div.className='item';
+    div.innerHTML = `
+      <div class='left'>
+        <div class='title'>${u.name} <span class='small-muted'>(${u.level}) ${gated?`• lvl ${u.requiresLevel}`:''}</span></div>
+        <div class='small'>${u.desc}</div>
+      </div>
+      <div class='right'>
+        <div class='price'>${fmt(costToPay)}</div>
+        <button class='btn' ${canBuy?'':'disabled'} data-id='${u.id}'>Buy</button>
+      </div>
+    `;
+    const btn=div.querySelector('button');
+    btn.addEventListener('click', ()=>buyUpgrade(u.id));
+    shopEl.appendChild(div);
+  });
+}
+
+function renderAutos(){
+  autosEl.innerHTML='';
+  Object.values(Game.autos).forEach(a=>{
+    const div = document.createElement('div');div.className='item';
+    div.innerHTML = `
+      <div class='left'>
+        <div class='title'>${a.name} <span class='small-muted'>x${a.qty}</span></div>
+        <div class='small'>${a.desc}</div>
+      </div>
+      <div class='right'>
+        <div class='price'>${fmt(a.cost)}</div>
+        <button class='btn' data-id='${a.id}'>Buy</button>
+      </div>
+    `;
+    div.querySelector('button').addEventListener('click', ()=>buyAuto(a.id));
+    autosEl.appendChild(div);
+  });
+}
+
+function renderAchievements(){
+  achievementsEl.innerHTML='';
+  Object.values(Game.achievements).forEach(a=>{
+    const div=document.createElement('div');div.className='ach'+(a.unlocked?'':' locked');
+    div.innerHTML=`<div style='width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,#fff,#ddd);display:flex;align-items:center;justify-content:center;font-weight:700'>${a.unlocked? '✓':'?'}</div><div style='flex:1'><div style='font-weight:700'>${a.name}</div><div class='small'>${a.desc}</div></div>`;
+    achievementsEl.appendChild(div);
+  });
+}
+
+// NEW: Prestige shop renderer
+function renderPrestigeShop(){
+  ppDisplayEl.textContent = fmt(Game.prestigePoints);
+  nextAscendCostEl.textContent = fmt(nextAscendCost());
+  prestigeShopEl.innerHTML = '';
+  PrestigeShop.forEach(p=>{
+    const level = getPerk(p.id);
+    const atMax = level >= p.max;
+    const can = Game.prestigePoints >= p.cost && !atMax;
+    const div = document.createElement('div'); div.className='item';
+    div.innerHTML = `
+      <div class='left'>
+        <div class='title'>${p.name} <span class='upgrade-level'>${level}/${p.max}</span></div>
+        <div class='small'>${p.desc}</div>
+      </div>
+      <div class='right'>
+        <div class='price'>${atMax?'MAX':p.cost+' PP'}</div>
+        <button class='btn' ${can?'':'disabled'} data-id='${p.id}'>${atMax?'Owned':'Buy'}</button>
+      </div>
+    `;
+    div.querySelector('button').addEventListener('click', ()=>buyPrestige(p.id));
+    prestigeShopEl.appendChild(div);
+  });
+}
+
+function buyPrestige(id){
+  const p = PrestigeShop.find(x=>x.id===id); if(!p) return;
+  const level = getPerk(id);
+  if(level>=p.max || Game.prestigePoints < p.cost) return;
+  Game.prestigePoints -= p.cost;
+  Game.prestigePerks[id] = level + 1;
+  log(`Prestige purchase: ${p.name} (${level+1}/${p.max})`);
+  renderAll();
+}
+
+// Core gameplay
+function addCoins(n,source){
+  const final = n; // fixed: n is already fully multiplied
+  Game.coins += final;
+  Game.totalCoins += final;
+  lastGain.textContent = fmt(final);
+  coinsEl.textContent = fmt(Game.coins);
+  totalEl.textContent = fmt(Game.totalCoins);
+  if(source) log(`+${fmt(final)} ${source}`);
+}
+
+function buyUpgrade(id){
+  const u=Game.upgrades[id];
+  if(!u) return;
+  const costToPay = getRealUpgradeCost(u);
+  if(u.requiresLevel && Game.level < u.requiresLevel){ log('Requires level '+u.requiresLevel); return; }
+  if(Game.coins < costToPay) { log('Not enough coins'); return; }
+  Game.coins -= costToPay;
+  u.level++;
+  // cost scaling
+  u.cost = Math.ceil(u.baseCost * Math.pow(1.45, u.level));
+  // apply effect
+  if(u.type==='click'){
+    Game.perClick += u.value; // flat
+  }else if(u.type==='mult'){
+    Game.clickPowerMultiplier *= u.value;
+  }else if(u.type==='xp'){
+    Game.xp += u.value;
+  }else if(u.type==='cpsmult'){
+    Game.cpsMultiplier *= u.value;
+  }
+  awardXP(5);
+  renderShop(); renderStats();
+}
+
+function buyAuto(id){
+  const a=Game.autos[id];
+  if(!a) return;
+  if(Game.coins < a.cost) { log('Not enough coins for automator'); return; }
+  Game.coins -= a.cost;
+  a.qty++;
+  // cost scaling per quantity
+  a.cost = Math.ceil(a.baseCost * Math.pow(1.35, a.qty));
+  Game.cps += a.value;
+  renderAutos(); renderStats();
+  log(`Purchased ${a.name} x${a.qty}`);
+}
+
+function clickMain(){
+  // clicking gives base perClick * all multipliers with crit/golden
+  const base = getBasePerClick();
+  let mult = getClickMult();
+  let tag = 'click';
+  // golden click first
+  if(Math.random() < getGoldenChance()) { mult *= 10; tag = 'golden click'; }
+  // crit
+  if(Math.random() < getCritChance()) { mult *= 5; tag = 'CRIT'; }
+  const gain = base * mult;
+  addCoins(gain, tag);
+  Game.clicks++;
+  clickCountEl.textContent = Game.clicks;
+  burstParticles(clickArea.clientWidth/2, clickArea.clientHeight/2);
+  if(document.getElementById('soundToggle').checked) playClickSound(gain);
+  checkAchievements();
+}
+
+// Achievements and XP
+function awardXP(n){ Game.xp += n; checkLevel(); }
+function checkLevel(){
+  const needed = Math.floor(50 + Game.level * 50 * Math.pow(1.1, Game.level));
+  while(Game.xp >= needed){
+    Game.xp -= needed; Game.level++; playerLevelEl.textContent = Game.level; log('Leveled up!');
+  }
+  const ratio = Math.min(1, Game.xp/needed)*100;
+  xpBar.style.width = ratio + '%';
+}
+
+function checkAchievements(){
+  Achievements.forEach(a=>{
+    const state = Game.achievements[a.id];
+    if(!state.unlocked && a.checker(Game)){
+      state.unlocked = true; log('Achievement unlocked: '+a.name); renderAchievements();
+      awardXP(10);
+    }
+  });
+}
+
+// Logging
+function log(t){
+  const d = document.createElement('div');
+  d.style.padding='6px 8px'; d.style.borderRadius='6px'; d.style.fontSize='13px'; d.style.color='#dfe7ff'; d.textContent = `[${new Date().toLocaleTimeString()}] ${t}`;
+  logEl.prepend(d);
+}
+
+// UI helper
+function renderStats(){
+  const pc = Math.round(getBasePerClick() * getClickMult());
+  const cpsEff = Game.cps * getCpsPowerMult() * getAutoSpeedMult();
+  perClickEl.textContent = fmt(pc);
+  cpsEl.textContent = (cpsEff).toFixed(2);
+  coinsEl.textContent = fmt(Game.coins);
+  totalEl.textContent = fmt(Game.totalCoins);
+  prestigeEl.textContent = fmt(Game.prestigePoints);
+  if(ppDisplayEl) ppDisplayEl.textContent = fmt(Game.prestigePoints);
+  if(nextAscendCostEl) nextAscendCostEl.textContent = fmt(nextAscendCost());
+}
+
+// Simple flash
+function flash(id){ /* placeholder */ }
+
+// Tick for autos
+function tick(){
+  const now = Date.now();
+  const elapsed = (now - Game.lastTick)/1000; Game.lastTick = now;
+  // apply cps with multipliers
+  const autosActive = document.getElementById('autosToggle').checked;
+  if(autosActive){
+    const gain = Game.cps * getCpsPowerMult() * getAutoSpeedMult() * elapsed;
+    if(gain>0) addCoins(gain,'auto');
+  }
+  updateParticles(elapsed);
+}
+setInterval(tick,1000/2);
+
+// Save / Load
+function save(){
+  const data = JSON.stringify(Game);
+  localStorage.setItem('coinrise_save', data);
+  lastSaveEl.textContent = new Date().toLocaleTimeString();
+}
+function load(){
+  const raw = localStorage.getItem('coinrise_save');
+  if(!raw) return; try{ const obj = JSON.parse(raw);
+    Object.assign(Game, obj);
+    // ensure items exist
+    ShopItems.forEach(it=>{ if(!Game.upgrades[it.id]) Game.upgrades[it.id] = {...it,level:0,cost:it.baseCost}; });
+    Automators.forEach(a=>{ if(!Game.autos[a.id]) Game.autos[a.id] = {...a,qty:0,cost:a.baseCost}; });
+    Achievements.forEach(a=>{ if(!Game.achievements[a.id]) Game.achievements[a.id] = {...a,unlocked:false}; });
+    Game.prestigePerks = Game.prestigePerks||{};
+    Game.cpsMultiplier = Game.cpsMultiplier||1;
+    Game.ascensions = Game.ascensions||0;
+    Game.themeIndex = Game.themeIndex||0;
+    // theme restore
+    const savedTheme = parseInt(localStorage.getItem('coinrise_theme_idx')||Game.themeIndex,10);
+    if(!isNaN(savedTheme)) applyThemeByIndex(savedTheme);
+    renderAll();
+    lastSaveEl.textContent = 'loaded';
+  }catch(e){console.error('Load failed',e)}
+}
+
+setInterval(save,30000);
+window.addEventListener('beforeunload', save);
+
+// Export/Import
+el('exportBtn').addEventListener('click', ()=>{
+  const data = localStorage.getItem('coinrise_save') || JSON.stringify(Game);
+  navigator.clipboard.writeText(data).then(()=>alert('Save copied to clipboard'));
+});
+el('importBtn').addEventListener('click', ()=>{
+  const text = prompt('Paste save data JSON');
+  if(!text) return; try{ localStorage.setItem('coinrise_save', text); load(); alert('Save imported'); }catch(e){alert('Invalid save')}
+});
+
+el('resetBtn').addEventListener('click', ()=>{
+  if(!confirm('Reset your save?')) return; localStorage.removeItem('coinrise_save'); location.reload();
+});
+
+// Prestige / Ascend (1 PP per ascend, gated by total requirement)
+el('prestigeBtn').addEventListener('click', ()=>{
+  const req = nextAscendCost();
+  if(Game.totalCoins < req){ alert('Earn more total coins to ascend: '+fmt(req)); return; }
+  if(!confirm(`Ascend now? You will gain 1 Prestige Point and reset most progress. Requirement: ${fmt(req)} total coins.`)) return;
+  Game.prestigePoints += 1;
+  Game.ascensions = (Game.ascensions||0)+1;
+  // keep prestige points, perks, theme
+  const keep = {prestigePoints: Game.prestigePoints, prestigePerks: Game.prestigePerks, ascensions: Game.ascensions, themeIndex: Game.themeIndex};
+  Object.keys(Game).forEach(k=>{ delete Game[k]; });
+  Object.assign(Game, {coins:0,totalCoins:0,perClick:1,cps:0,cpsMultiplier:1,clickPowerMultiplier:1,upgrades:{},autos:{},achievements:{},prestigePoints:keep.prestigePoints,prestigePerks:keep.prestigePerks,ascensions:keep.ascensions,themeIndex:keep.themeIndex,xp:0,level:1,startedAt:Date.now(),lastTick:Date.now(),clicks:0});
+  ShopItems.forEach(it=>Game.upgrades[it.id]={...it,level:0,cost:it.baseCost});
+  Automators.forEach(a=>Game.autos[a.id]={...a,qty:0,cost:a.baseCost});
+  Achievements.forEach(a=>Game.achievements[a.id]={...a,unlocked:false});
+  log('Ascended. Prestige points: '+Game.prestigePoints);
+  renderAll();
+});
+
+// Sound using WebAudio
+const AudioCtx = window.AudioContext || window.webkitAudioContext; let audioCtx;
+function playClickSound(value){
+  if(!audioCtx) audioCtx = new AudioCtx();
+  const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+  o.type = 'sine'; o.frequency.value = 220 + Math.min(2000, Math.log10(value+1)*4000);
+  g.gain.value = 0.06; o.connect(g); g.connect(audioCtx.destination);
+  o.start(); o.stop(audioCtx.currentTime + 0.06);
+}
+
+// Particles
+function burstParticles(x,y){
+  if(!document.getElementById('particlesToggle').checked) return;
+  for(let i=0;i<18;i++){
+    particles.push({x,y, vx:(Math.random()-0.5)*300, vy:(Math.random()-0.8)*300, life:0, ttl:0.8, size:4+Math.random()*8, color:`hsl(${Math.random()*60+30},90%,55%)`});
+  }
+}
+function updateParticles(dt){
+  if(!pctx) return; pctx.clearRect(0,0,particlesCanvas.width,particlesCanvas.height);
+  particles.forEach(p=>{
+    p.life+=dt; if(p.life>p.ttl) return;
+    p.vy += 800*dt; p.x += p.vx*dt; p.y += p.vy*dt;
+    const alpha = 1 - p.life/p.ttl;
+    pctx.fillStyle = p.color; pctx.globalAlpha = alpha; pctx.beginPath(); pctx.ellipse(p.x,p.y,p.size,p.size,0,0,Math.PI*2); pctx.fill();
+  });
+  particles = particles.filter(p=>p.life<p.ttl);
+  pctx.globalAlpha = 1;
+}
+
+resizeCanvas();
+
+// UI events
+const clickAreaEl = document.getElementById('clickArea');
+const coinBtnEl = document.getElementById('coin');
+coinBtnEl.addEventListener('click', clickMain);
+clickAreaEl.addEventListener('mousedown', ()=>coinBtnEl.classList.add('pulse'));
+clickAreaEl.addEventListener('mouseup', ()=>coinBtnEl.classList.remove('pulse'));
+
+// Bind shop to UI
+renderAll();
+function renderAll(){ renderShop(); renderAutos(); renderAchievements(); renderPrestigeShop(); renderStats(); }
+
+// Initialize clickable perClick default (now constant base; perks add)
+Game.perClick = 1;
+
+// session timer
+setInterval(()=>{
+  const s = Math.floor((Date.now()-Game.startedAt)/1000);
+  sessionTimeEl.textContent = s + 's';
+},1000);
+
+// quick hotkeys
+window.addEventListener('keydown', (e)=>{
+  if(e.key===' '){ e.preventDefault(); clickMain(); }
+  if(e.key==='A' || e.key==='a'){
+    const firstAuto = Object.values(Game.autos)[0]; if(firstAuto) buyAuto(firstAuto.id);
+  }
+});
+
+// Offline earnings calculation on load
+window.addEventListener('load', ()=>{
+  // theme first
+  const savedTheme = parseInt(localStorage.getItem('coinrise_theme_idx')||'0',10);
+  if(!isNaN(savedTheme)) applyThemeByIndex(savedTheme);
+  load();
+  const raw = localStorage.getItem('coinrise_save');
+  if(raw){
+    try{
+      const prev = JSON.parse(raw);
+      const offlineSec = Math.min(60*60*6, Math.floor((Date.now() - (prev.lastTick||prev.startedAt||Date.now()))/1000));
+      if(offlineSec>10){
+        const eff = (prev.prestigePerks && prev.prestigePerks.p_offline_eff)? Math.min(1, 0.30 + 0.10*prev.prestigePerks.p_offline_eff) : 0.30;
+        const cpsMultPrev = (prev.cpsMultiplier||1) * (1 + 0.10*((prev.prestigePerks&&prev.prestigePerks.p_cps_mult)||0)) * (1 + 0.005*((prev.level||1)-1));
+        const earned = (prev.cps||0) * cpsMultPrev * eff * offlineSec;
+        if(earned>0){ Game.coins += earned; Game.totalCoins += earned; alert('While you were away you earned '+fmt(earned)+' coins (offline).'); }
+      }
+    }catch(e){console.error(e)}
+  }
+  renderAll();
+});
+
+// Initialize dynamic UI buttons for boosts
+el('doubleClick').addEventListener('click', ()=>{
+  const cost = 500 + Game.prestigePoints*100;
+  if(Game.coins < cost) { alert('Not enough coins for boost') ; return; }
+  Game.coins -= cost; Game.clickPowerMultiplier *= 2; log('Double click purchased'); renderStats();
+});
+el('halfcost').addEventListener('click', ()=>{
+  const cost = 1000 + Game.prestigePoints*200;
+  if(Game.coins < cost) { alert('Not enough coins for discount') ; return; }
+  Game.coins -= cost;
+  ShopItems.forEach(it=>{ const u=Game.upgrades[it.id]; u.cost = Math.max(1, Math.floor(u.cost*0.5)); });
+  log('Half cost applied for shop items'); renderShop(); renderStats();
+});
+
+// Keep lastTick fresh
+setInterval(()=>{ Game.lastTick = Date.now(); save(); },1000);
+
+// Click ripple
+clickArea.addEventListener('click', (e)=>{
+  const r = document.createElement('div'); r.style.position='absolute'; r.style.left=(e.offsetX-20)+'px'; r.style.top=(e.offsetY-20)+'px'; r.style.width='40px'; r.style.height='40px'; r.style.borderRadius='50%'; r.style.background='rgba(255,255,255,0.08)'; r.style.transform='scale(0)'; r.style.transition='transform .5s,opacity .5s'; clickArea.appendChild(r);
+  requestAnimationFrame(()=>{ r.style.transform='scale(2)'; r.style.opacity='0'; });
+  setTimeout(()=>r.remove(),600);
+});
+
+log('Game initialized');
+</script>
+</body>
+</html>

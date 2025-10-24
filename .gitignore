@@ -1,0 +1,56 @@
+# Portfolio Website - Ignore Files
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# Temporary Files
+*.tmp
+*.temp
+*.log
+
+# Node Modules (if you add build tools later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build Output (if you add build tools later)
+dist/
+build/
+.cache/
+
+# Environment Variables (keep your EmailJS keys private if stored in a file)
+.env
+.env.local
+.env.*.local
+
+# Backup Files
+*.bak
+backup/
+*.orig
+
+# Large Media Files (optional - uncomment if needed)
+# *.mp4
+# *.mov
+# *.avi
+
+# Personal Notes
+notes.txt
+TODO.md
+.notes/
