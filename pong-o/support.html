@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - Pong-O</title>
+    <title>Support - Pong-O</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -96,6 +96,10 @@
             border-bottom: 2px solid #3B82F6;
         }
 
+        h2:first-child {
+            margin-top: 0;
+        }
+
         h3 {
             color: #1e293b;
             font-size: 18px;
@@ -108,39 +112,24 @@
             color: #555;
         }
 
-        ul {
-            margin-left: 20px;
-            margin-bottom: 15px;
-        }
-
-        li {
-            margin-bottom: 8px;
-        }
-
-        .highlight {
-            background: #EFF6FF;
-            border-left: 4px solid #3B82F6;
-            padding: 15px 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-        }
-
-        .contact {
+        .faq-item {
             background: #F8FAFC;
             padding: 20px;
             border-radius: 12px;
-            margin-top: 30px;
-            text-align: center;
+            margin-bottom: 15px;
+            border-left: 4px solid #3B82F6;
         }
 
-        .contact a {
-            color: #3B82F6;
-            text-decoration: none;
+        .faq-question {
             font-weight: 600;
+            color: #0F172A;
+            margin-bottom: 10px;
+            font-size: 16px;
         }
 
-        .contact a:hover {
-            text-decoration: underline;
+        .faq-answer {
+            color: #555;
+            line-height: 1.7;
         }
 
         .contact-form-section {
@@ -241,19 +230,37 @@
         }
 
         .footer {
+            background: #0F172A;
+            color: white;
+            padding: 30px 20px;
+            margin: 60px -20px -40px -20px;
+            border-radius: 20px 20px 0 0;
             text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #E5E7EB;
-            color: #6B7280;
-            font-size: 14px;
         }
 
-        .last-updated {
-            color: #6B7280;
-            font-size: 14px;
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
             margin-bottom: 20px;
-            text-align: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #94A3B8;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer p {
+            color: #64748B;
+            font-size: 14px;
+            margin: 10px 0;
         }
 
         @media (max-width: 640px) {
@@ -284,95 +291,123 @@
 </head>
 <body>
     <!-- Home Button -->
-    <a href="/" class="home-button">
-        <i class="fas fa-home"></i>
-        <span>Home</span>
+    <a href="index.html" class="home-button">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Pong-O</span>
     </a>
 
     <div class="container">
         <div class="header">
             <div class="app-icon">PONG-O</div>
-            <h1>Privacy Policy</h1>
-            <p>YOUR PRIVACY MATTERS</p>
+            <h1>Support & Help</h1>
+            <p>WE'RE HERE TO HELP</p>
         </div>
 
         <div class="content">
-            <p class="last-updated"><strong>Last Updated:</strong> November 7, 2025</p>
+            <h2>Frequently Asked Questions</h2>
 
-            <h2>Overview</h2>
-            <p>Pong-O ("the App") is committed to protecting your privacy. This policy explains how we handle your information when you use our mobile game application.</p>
-
-            <h2>Information We Collect</h2>
-
-            <h3>Sign In with Apple (Optional)</h3>
-            <ul>
-                <li>When you choose to sign in with Apple, we receive a unique identifier to save your game progress across devices</li>
-                <li>No email address or personal information is collected or stored by us</li>
-                <li>Apple handles all authentication securely</li>
-            </ul>
-
-            <h3>Game Data (Local Storage)</h3>
-            <ul>
-                <li>Game progress (coins, unlocked items, high scores)</li>
-                <li>Game settings (control preferences, selected skins/themes)</li>
-                <li>All data is stored locally on your device using AsyncStorage</li>
-            </ul>
-
-            <h3>Cloud Sync (Optional)</h3>
-            <ul>
-                <li>If you sign in with Apple, your game progress may sync via iCloud</li>
-                <li>This is handled entirely by Apple's infrastructure</li>
-                <li>We do not have access to your iCloud data</li>
-            </ul>
-
-            <div class="highlight">
-                <h3 style="margin-top: 0;">Information We DON'T Collect</h3>
-                <ul style="margin-bottom: 0;">
-                    <li>We do NOT collect personal information</li>
-                    <li>We do NOT use analytics or tracking</li>
-                    <li>We do NOT display advertisements</li>
-                    <li>We do NOT share your data with third parties</li>
-                    <li>We do NOT use cookies</li>
-                </ul>
+            <div class="faq-item">
+                <div class="faq-question">How do I play Pong-O?</div>
+                <div class="faq-answer">
+                    Simply touch and drag your paddle to move it up and down. Your goal is to deflect the ball 
+                    past your opponent's paddle to score points. First to reach the target score wins!
+                </div>
             </div>
 
-            <h2>Data Usage</h2>
-            <p>Game data is used solely to provide game functionality. Your progress is saved to enhance your gaming experience. No data is transmitted to external servers (except Apple's iCloud if you enable Sign In with Apple).</p>
+            <div class="faq-item">
+                <div class="faq-question">How do I unlock new skins and themes?</div>
+                <div class="faq-answer">
+                    Earn coins by playing matches and completing achievements. Visit the Shop to purchase 
+                    paddle skins and table themes with your earned coins. No real money required!
+                </div>
+            </div>
 
-            <h2>Account Deletion</h2>
-            <p>You have full control over your data:</p>
-            <ul>
-                <li>Navigate to Help & Settings in the app</li>
-                <li>Tap "Delete Account" in the Account section</li>
-                <li>Confirm deletion through the prompts</li>
-                <li>All your game data and account information will be permanently deleted</li>
-            </ul>
+            <div class="faq-item">
+                <div class="faq-question">What is Sign In with Apple used for?</div>
+                <div class="faq-answer">
+                    Sign In with Apple allows you to sync your game progress, unlocked items, and high scores 
+                    across all your iOS devices via iCloud. It's completely optional and keeps your data private.
+                </div>
+            </div>
 
-            <h2>Children's Privacy</h2>
-            <p>Our app is rated 12+ and does not knowingly collect information from children under 13. If you believe we have collected information from a child under 13, please contact us immediately.</p>
+            <div class="faq-item">
+                <div class="faq-question">How do I delete my account?</div>
+                <div class="faq-answer">
+                    Navigate to Help & Settings in the app, then tap "Delete Account" in the Account section. 
+                    Follow the prompts to permanently delete all your data and account information.
+                </div>
+            </div>
 
-            <h2>Your Rights</h2>
-            <ul>
-                <li>You can delete all local game data by uninstalling the app</li>
-                <li>You can sign out of Apple Sign In at any time in the app settings</li>
-                <li>You can delete your account and all data through the in-app Delete Account feature</li>
-                <li>Your data will be deleted when you delete the app</li>
-            </ul>
+            <div class="faq-item">
+                <div class="faq-question">Does Pong-O require an internet connection?</div>
+                <div class="faq-answer">
+                    No! Pong-O works completely offline. Internet is only needed if you want to sync your 
+                    progress across devices using Sign In with Apple.
+                </div>
+            </div>
 
-            <h2>Data Security</h2>
-            <p>Game data is stored securely on your device. Cloud sync uses Apple's secure iCloud infrastructure. We implement industry-standard security measures to protect your information.</p>
+            <div class="faq-item">
+                <div class="faq-question">Are there any in-app purchases or ads?</div>
+                <div class="faq-answer">
+                    No. Pong-O is completely free with no ads and no in-app purchases. All content is 
+                    unlockable through gameplay.
+                </div>
+            </div>
 
-            <h2>Changes to Privacy Policy</h2>
-            <p>We may update this policy occasionally to reflect changes in our practices or for legal reasons. Continued use of the app constitutes acceptance of changes. We will notify users of significant changes through the app or via email if provided.</p>
+            <div class="faq-item">
+                <div class="faq-question">What iOS version do I need?</div>
+                <div class="faq-answer">
+                    Pong-O requires iOS 14.0 or later and works on all compatible iPhone and iPad devices.
+                </div>
+            </div>
 
-            <h2>No Sale of Data</h2>
-            <p>We do not sell, trade, or transfer your information to outside parties. Your data remains yours.</p>
+            <div class="faq-item">
+                <div class="faq-question">How do I restore my progress?</div>
+                <div class="faq-answer">
+                    If you signed in with Apple, simply sign in again on your new device and your progress 
+                    will automatically sync from iCloud. If you didn't use Sign In with Apple, progress is 
+                    stored locally on your device only.
+                </div>
+            </div>
+
+            <h2>Troubleshooting</h2>
+
+            <h3>Game is running slowly</h3>
+            <p>
+                Try closing other apps running in the background and restart Pong-O. Make sure your device 
+                is running the latest iOS version for optimal performance.
+            </p>
+
+            <h3>Can't sign in with Apple</h3>
+            <p>
+                Ensure you have Sign In with Apple enabled in your device settings (Settings → Your Name → 
+                Password & Security → Apps Using Apple ID). Also verify you have an active internet connection.
+            </p>
+
+            <h3>Progress not syncing</h3>
+            <p>
+                Make sure you're signed in with the same Apple ID on all devices and that iCloud is enabled. 
+                Check that you have a stable internet connection on both devices.
+            </p>
+
+            <h3>Game crashes or won't open</h3>
+            <p>
+                Try force-closing the app and reopening it. If the issue persists, restart your device. 
+                As a last resort, delete and reinstall the app (note: local progress will be lost unless 
+                you're using Sign In with Apple).
+            </p>
+
+            <h2>Contact Information</h2>
+            <p>
+                If you're experiencing issues not covered here or have feedback about the game, 
+                please reach out using the contact form below. We typically respond within 24-48 hours.
+            </p>
         </div>
 
         <!-- Contact Form Section -->
         <div class="contact-form-section">
-            <h2>Send Us a Message</h2>
-            <p>Have questions or concerns about your privacy? Send us a message and we'll get back to you as soon as possible.</p>
+            <h2>Get in Touch</h2>
+            <p>Have a question or need help? Send us a message and we'll get back to you as soon as possible.</p>
             
             <form id="contactForm" class="contact-form">
                 <div class="form-group">
@@ -393,14 +428,19 @@
                 <div id="formStatus" class="form-status"></div>
             </form>
         </div>
+    </div>
 
-        <div class="footer">
-            <p>© 2025 Pong-O. All rights reserved.</p>
-            <p>Developed by Alex Pace</p>
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-links">
+            <a href="index.html">Pong-O Home</a>
+            <a href="privacy-policy.html">Privacy Policy</a>
         </div>
+        <p>© 2025 Pong-O. All rights reserved.</p>
+        <p>Developed by Alex Pace</p>
     </div>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script src="Logic/emailjs.js"></script>
+    <script src="../Logic/emailjs.js"></script>
 </body>
 </html>
